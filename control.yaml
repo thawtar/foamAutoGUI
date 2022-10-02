@@ -1,0 +1,4 @@
+application: financialFoam
+startFrom: startTime
+startTime: 0
+stopAt: endTime

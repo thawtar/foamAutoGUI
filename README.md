@@ -1,2 +1,2 @@
 # foamAutoGUI
- GUI based automation tool for OpenFOAM
+ GUI based OpenFOAM automation tool

@@ -1,0 +1,1 @@
+{"castellatedMesh": "true", "snap": "true", "addLayers": "true", "geometry": [{"pipe.stl": [{"type": "triSurfaceMesh"}]}, {"refinementBox": {"type": "box", "min": "0.4 0.25 0.65", "max": "0.8 0.75 1.35"}}], "castellatedMeshControls": {"maxLocalCells": 20000, "maxGlobalCells": 5000}}

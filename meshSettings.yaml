@@ -1,0 +1,5 @@
+blockMesh: 1
+snappyHexMesh: 1
+
+# blockMesh properties
+

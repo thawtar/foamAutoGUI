@@ -1,0 +1,13 @@
+addLayers: 'true'
+castellatedMesh: 'true'
+castellatedMeshControls:
+  maxGlobalCells: 5000
+  maxLocalCells: 20000
+geometry:
+- pipe.stl:
+    type: triSurfaceMesh
+- refinementBox:
+    max: 0.8 0.75 1.35
+    min: 0.4 0.25 0.65
+    type: box
+snap: 'true'

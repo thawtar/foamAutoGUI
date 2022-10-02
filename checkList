@@ -1,0 +1,22 @@
+# System dictionaries
+blockMesh
+snappyHexMesh
+controlDict (OK)
+fvSchemes	(OK)
+fvSolutions (OK)
+
+# Constants and properties
+transportProperties
+transportProperties (multiphase)
+turbulenceProperties
+
+
+# Boundary Conditions
+U
+p
+p_rgh
+k
+epsilon
+omega
+nut
+nuTilda
