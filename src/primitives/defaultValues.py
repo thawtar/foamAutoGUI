@@ -10,7 +10,7 @@
 
 
 def generateSnappyHexMeshData(): # to generate default values for snappyHexMesh
-    mainControls = {"castellatedMesh":"true","snap":"true","addLayers":"true"}
+    mainControls = {"castellatedMesh":"true","snap":"false","addLayers":"false"}
     geometry = {"geometry":[{"pipe.stl":{"type":"triSurfaceMesh"}},{"refinementBox":{"type":"box","min":"0.4 0.25 0.65","max":"0.8 0.75 1.35"}}],}
     castellatedMeshControls = {"castellatedMeshControls":{"maxLocalCells":20000, "maxGlobalCells":5000,"minRefinementCells":1,
     "maxLoadUnbalance":0.10,"nCellsBetweenLevels":3,"refinementSurfaces":[],"resolveFeatureAngle":30,

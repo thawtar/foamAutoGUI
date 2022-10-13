@@ -7,8 +7,8 @@ FoamFile
 }
 
 castellatedMesh true;
-snap true;
-addLayers true;
+snap false;
+addLayers false;
 geometry{
 pipe.stl
 {

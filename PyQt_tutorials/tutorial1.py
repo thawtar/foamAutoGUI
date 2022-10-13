@@ -6,9 +6,9 @@ from tutorial1UI import *
 class MyForm(QDialog):
     def __init__(self):
         super().__init__()
-        self.ui = Dialog()
+        self.ui = Ui_Dialog()
         self.ui.setupUi(self)
-        self.ui.ButtonClickMe.clicked.connect(self.dispmessage)
+        self.ui.pushButtonOK.connect()
         self.show()
     def dispmessage(self):
         self.ui.labelResponse.setText("Hello "

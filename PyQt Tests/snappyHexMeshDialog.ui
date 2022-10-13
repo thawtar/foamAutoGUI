@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>576</width>
+    <width>943</width>
     <height>602</height>
    </rect>
   </property>
@@ -314,7 +314,25 @@
     <string>Generate Mesh</string>
    </property>
   </widget>
+  <widget class="vtkWidget" name="vtkWidget" native="true">
+   <property name="geometry">
+    <rect>
+     <x>549</x>
+     <y>49</y>
+     <width>381</width>
+     <height>321</height>
+    </rect>
+   </property>
+  </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>vtkWidget</class>
+   <extends>QWidget</extends>
+   <header>vtkwidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

@@ -10,8 +10,12 @@
 # Therefore, there is no import libraries.
 
 #from typing import IO
+from email.headerregistry import ContentDispositionHeader
 import primitives.IO as IO
 import primitives.defaultValues as df
+import sys
+import os
+
 
 #Primitives
 #IO
@@ -29,6 +33,25 @@ def writeDictFile(data="",dictFile="blockMesh"):
         print("Exiting...")
         exit(-1)
 
+
+# to create a case inside a directed path.
+def createCaseDirectory(caseDir="/casePath",caseName="testCase"):
+    print("Creating Case Directory...")
+    try:
+        os.chdir(caseDir)
+    except:
+        print("Error entering the path... Check the path again")
+        print("Exiting...")
+        exit(-1)
+    pwd = os.getcwd()
+    caseFullPath = pwd+caseName+"/"
+    try:
+        os.mkdir(caseFullPath)
+    except:
+        print("Error creating directory")
+        exit(-1)
+    # Create OpenFOAM default directories 0, constant, system
+    
 
 # add "toAdd" to main text "text"
 def addText(text,toAdd="a"):
@@ -233,8 +256,6 @@ def dictDataToText(data):
     #print(values)
 
 
-
-
 def controlDictTest():
     data = df.generateControlDictData()
     print(data)
@@ -267,10 +288,10 @@ def snappyTest():
     writeDictFile(data=text,dictFile="snappyHexMeshDict")
     print(text)
 
-controlDictTest()
-fvSchemesTest()
+#controlDictTest()
+#fvSchemesTest()
 snappyTest()
-fvSolutionsTest()
+#fvSolutionsTest()
 #=============================================================
 """******************************************************
 snappyHexMeshDict variables
