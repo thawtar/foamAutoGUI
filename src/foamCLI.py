@@ -5,10 +5,6 @@
 # software is freely granted, provided that this notice 
 # is preserved.
 
-# This code is the command line implementation to create OpenFOAM case files from GUI input
-# Only core operations are included here.
-# Therefore, there is no import libraries.
-
 #from typing import IO
 from email.headerregistry import ContentDispositionHeader
 import primitives.IO as IO
@@ -290,7 +286,7 @@ def snappyTest():
 
 #controlDictTest()
 #fvSchemesTest()
-snappyTest()
+#snappyTest()
 #fvSolutionsTest()
 #=============================================================
 """******************************************************
