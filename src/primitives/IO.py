@@ -17,6 +17,24 @@ def printLineByLine(data):
     for anItem in data:
         print(anItem)
 
+# To print nested dictionaries with keys in a easy to view manner. Useful for data visualization
+def printDictionary(aDictionary={"asdf":2}):
+    keys = aDictionary.keys()
+    for anItem in keys:
+        if(isinstance(aDictionary[anItem],dict)):
+            print()
+            print(anItem)
+            printDictionary(aDictionary=aDictionary[anItem])
+        else:
+            print(anItem,aDictionary[anItem])
+        
+
+def isFloat(num):
+    try:
+        float(num)
+        return True
+    except ValueError:
+        return False
 
 # Read YAML setting file
 def readYAML(fileName="control.yaml"):
@@ -103,12 +121,78 @@ def clearComments(data=["//asdf","24t34","/*this is start","end of a comment*/",
     return clearData
     
 
+testBoundary = ['    movingWall', '    {', '        type            wall;',
+ '        inGroups        1(wall);', '        nFaces          20;',
+  '        startFace       760;', '    }', '    fixedWalls',
+   '    {', '        type            wall;', '        inGroups        1(wall);', '        nFaces          60;', '        startFace       780;', '    }', '    frontAndBack', '    {', '        type            empty;', '        inGroups        1(empty);', '        nFaces          800;', '        startFace       840;', '    }'] 
+
+# TODO: Read dictionary data and put all these contents to a list of dictionaries.
+# This function reads the RAW dictionary data and creats a dictionary based on it.
+# Can be used for ALL general purpose OpenFOAM dictionaries WITHOUT NESTED dictionaries.
+def read_dictionary(data=testBoundary):
+    dictionaries = {} # To store the processed dictionary data.
+    subDictionaries = {} # to store sub-dictionaries
+    insideDictionary = 0 # Flag to mark whether currently inside a dictionary.
+    #print(data)
+    # A dictionary contains the dictionary header name, { } and contents inside it.
+    # So, the idea is to find the header, each curly brackets and confirm that we are inside 
+    # the dictionary. For the contents of OpenFOAM dictionary, there is key and value.
+    # Thus, if there is TWO 
+    for aData in data:
+        dictionaryValue = []
+        
+        items = aData.split(" ")
+        #print(items)
+        for anItem in items:
+            if(anItem!=""and anItem!="\n"):
+                dictionaryValue.append(anItem)
+        if(len(dictionaryValue)==1 and dictionaryValue[0]!="{" 
+        and dictionaryValue[0]!="}"): # this must be the key of the dictionary
+            key = dictionaryValue[0]
+        if(dictionaryValue[0]=="{"): # this must be start of a dictionary
+            insideDictionary = 1
+        if(dictionaryValue[0]=="}"): # this must be the end of the dictionary
+            insideDictionary = 0
+            dictionaries[key]=subDictionaries # put data into main dictionary
+            subDictionaries = {} # clear up the sub dictionaries
+        # Check everything and put into dictionary
+        if(insideDictionary and len(dictionaryValue)==2):
+            subDictionaryValue = dictionaryValue[1][:-1] # remove the semicolon
+            if(subDictionaryValue.isdigit()): # check whether an integer or not
+                subDictionaryValue = int(subDictionaryValue)
+            elif(isFloat(subDictionaryValue)): # then whether a float or not
+                subDictionaryValue = float(subDictionaryValue)
+            else:
+                pass
+            subDictionaries[dictionaryValue[0]]=subDictionaryValue
+    if(len(dictionaries.keys())):
+        return dictionaries
+    return -1 # it has no dictionaries
+
+
+# TODO: Read boundary file for boundary patches. Return a list of boundary dictionaries
 def read_boundary(file="c:/Users/mrtha/Desktop/GitHub/foamAutoGUI/src/primitives/boundary"):
     data = readFile(fileName=file)
+    if(data==-1):
+        print("Error... No data found... Exiting")
+        exit(-1)
     clearData = clearComments(data)
     clearData = clearData[8:]
-    printLineByLine(clearData)
+    boundaryCount = 0
+    #printLineByLine(clearData)
+    # Check the number of patches
+    if(clearData[0].isdigit()):
+        boundaryCount = int(clearData[0])
     
+    boundaryData = clearData[2:-1]
+    print("boundaryCount:\t",boundaryCount)
+    dictionariesFromBoundaryFile = read_dictionary(data=boundaryData)
+    #printLineByLine(boundaryData)
+    print(boundaryData)
+    if(dictionariesFromBoundaryFile!=-1):
+        print(dictionariesFromBoundaryFile)
+        printDictionary(dictionariesFromBoundaryFile)
+
 
 # This function reads STL file and extracts the surface patch names.
 def readSTL(stlFileName="cylinder.stl"):
@@ -132,7 +216,8 @@ def readSTL(stlFileName="cylinder.stl"):
 while(1):
     boundaryFile = input("Enter a boundary file: ")
     read_boundary(file=boundaryFile)
-#clearComments()   
+#clearComments() 
+#read_dictionary()  
 
 
 
