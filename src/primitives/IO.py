@@ -5,8 +5,8 @@
 # software is freely granted, provided that this notice 
 # is preserved.
 
-# The main purpose of this module is to generate default values for various dictionary
-# files. These values will be updated in the GUI.
+# The main purpose of this module is provide fundamental IO functionalities to deal with 
+# OpenFOAM files. This includes definition of default values which will be updated in the GUI.
 
 import sys
 import yaml
@@ -213,9 +213,9 @@ def readSTL(stlFileName="cylinder.stl"):
 
 #data = readSTL("c:/Users/mrtha/Desktop/GitHub/foamAutoGUI/src/primitives/cylinderBox.stl")
 #print(data)
-while(1):
-    boundaryFile = input("Enter a boundary file: ")
-    read_boundary(file=boundaryFile)
+#while(1):
+#    boundaryFile = input("Enter a boundary file: ")
+#    read_boundary(file=boundaryFile)
 #clearComments() 
 #read_dictionary()  
 
