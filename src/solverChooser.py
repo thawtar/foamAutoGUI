@@ -49,7 +49,8 @@ energy = 0          # 0 means no energy equation. If 1, energy is considered
 multiphase = 0      # 0 means single phase. If 1, multiphase is considered
 turbulence = 0      # 0 means laminar. If 1, turbulence modeling used
 
-def computeSolverKey(transient=0,compressible=0,energy=0,multiphase=0,turbulence=0):
+def computeSolverKey(physicsData):
+    transient,compressible,energy,multiphase,turbulence=physicsData
     if(transient):
         transient = 16
     if(compressible):
@@ -86,7 +87,8 @@ def test():
         multiphase=1
     if(turb=="Y"):
         turbulence=1
-    solverKey = computeSolverKey(transient,compressible,energy,multiphase,turbulence)
+    data = (transient,compressible,energy,multiphase,turbulence)
+    solverKey = computeSolverKey(physicsData=data)
     print(solverKey)
     if(solverKey not in solvers.keys()):
         print("Error... No solver found. Exiting...")

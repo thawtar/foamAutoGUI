@@ -9,12 +9,18 @@
 # OpenFOAM files. This includes definition of default values which will be updated in the GUI.
 
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QVBoxLayout
+from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QVBoxLayout, QDialog
 from PyQt5 import QtWidgets
 from PyQt5 import uic
 import vtk
 import primitives.IO as IO
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
+
+class createCase(QDialog):
+    def __init__(self) -> None:
+        super().__init__()
+        uic.loadUi("createCaseDialog.ui", self)
+        self.setWindowTitle("Create OpenFOAM Case")
 
 
 
@@ -45,6 +51,7 @@ class cfMeshDialog(QMainWindow):
         self.pushButtonSplitSTL.clicked.connect(self.splitSurfaces)
         self.pushButtonCAD_Import.clicked.connect(self.importCAD)
         self.statusbar.showMessage("Ready") # initial status bar message
+        #self.action_CreateProject.clicked.connect(self.createProject)
  
     def updateStatusBar(self,message="Go!"):
         self.statusbar.showMessage(message)
@@ -53,27 +60,48 @@ class cfMeshDialog(QMainWindow):
         item = self.listSurfaceList.currentItem()
         print(item.text())   
 
+    def createProject(self):
+        print("Creating Case...")
+
     # this function will read STL file and show it in the VTK renderer
-    def showSTL(self,stlFile=r"pipe.stl"):
+    def showSTL(self,stlFile=r"C:\Users\mrtha\Desktop\GitHub\foamAutoGUI\src\pipe.stl"):
         # Read stl
         try:
-            reader = vtk.vtkSTLReader()
-            reader.SetFileName(stlFile)
+            self.reader = vtk.vtkSTLReader()
+            self.reader.SetFileName(stlFile)
+            self.render3D()
         except:
             print("Reading STL not successful. Try again")
+        
+        
+    def render3D(self):  # self.ren and self.iren must be used. other variables are local variables
         # Create a mapper
         mapper = vtk.vtkPolyDataMapper()
-        mapper.SetInputConnection(reader.GetOutputPort())
+        mapper.SetInputConnection(self.reader.GetOutputPort())
         # Create an actor
         actor = vtk.vtkActor()
         actor.SetMapper(mapper)
+        actor.GetProperty().EdgeVisibilityOn()
+        colors = vtk.vtkNamedColors()
+        self.ren.SetBackground(colors.GetColor3d("SlateGray"))
         self.ren.AddActor(actor)
+        style = vtk.vtkInteractorStyleTrackballCamera()
+        self.iren.SetInteractorStyle(style)
+        camera = vtk.vtkCamera()
+        camera.SetPosition(0, 1, 0)
+        camera.SetFocalPoint(0, 0, 0)
+        camera.SetViewUp(0, 0, 1)
+        camera.Azimuth(30)
+        camera.Elevation(30)
+        self.ren.SetActiveCamera(camera)
         self.ren.ResetCamera()
-        self.iren.Initialize()
+        self.ren.ResetCameraClippingRange()
+        #renWin.Render()
+        self.iren.Start()
 
     def loadSTL(self,stlFile = r"C:\Users\mrtha\Desktop\GitHub\foamAutoGUI\src\pipe.stl"):
         self.updateStatusBar("Loading STL file")
-        stlFile = r"C:\Users\mrtha\Desktop\GitHub\foamAutoGUI\src\pipe.stl"
+        #stlFile = r"C:\Users\mrtha\Desktop\GitHub\foamAutoGUI\src\pipe.stl"
         surfaces=IO.readSTL(stlFileName=stlFile)
         print(surfaces)
         for (i,aSurface) in enumerate(surfaces):
