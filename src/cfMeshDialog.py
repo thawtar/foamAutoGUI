@@ -118,6 +118,15 @@ class cfMeshDialog(QMainWindow):
             print("Current STL File: ",fname)
             return fname
 
+    def importFile(self,startLocation="c:\\",fileType="*.brep *.igs *.iges"):
+        fname,ftype = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', 
+        'c:\\',"CAD files (*.brep *.igs *.iges)")
+        if(fname==""):
+            return -1 # CAD file not loaded
+        else:
+            print("Current CAD File: ",fname)
+            return fname
+
     def openCADDialog(self):
         fname,ftype = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', 
         'c:\\',"CAD files (*.brep *.igs *.iges)")
@@ -133,7 +142,7 @@ class cfMeshDialog(QMainWindow):
             pass
         else:
             self.showSTL(stlFile=stlFileName)
-            self.loadSTL()
+            self.loadSTL(stlFile=stlFileName)
 
     def splitSurfaces(self):
         self.updateStatusBar("Spliting surfaces")
