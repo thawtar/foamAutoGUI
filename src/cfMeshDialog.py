@@ -149,10 +149,10 @@ class cfMeshDialog(QMainWindow):
 
     def importCAD(self):
         cadFileName = self.openCADDialog()
-        if(cadFileName==""):
+        if(cadFileName==-1):
             pass #print("CAD file not found...")
         else:
-            self.updateStatusBar("CAD File imported: ",cadFileName)
+            self.updateStatusBar("CAD File imported: "+cadFileName)
 
     def defineBackgroundDomain(self):
         self.updateStatusBar("Creating background domain")
