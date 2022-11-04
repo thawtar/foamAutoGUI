@@ -1,3 +1,13 @@
+# Copyright (C) 2022 by Thaw Tar. All rights reserved.
+#
+# Developed at Zoro-CAE Solutions Inc. 
+# Permission to use, copy, modify, and distribute this
+# software is freely granted, provided that this notice 
+# is preserved.
+
+# The main purpose of this module is provide fundamental IO functionalities to deal with 
+# OpenFOAM files. This includes definition of default values which will be updated in the GUI.
+
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QVBoxLayout
 from PyQt5 import QtWidgets
@@ -13,7 +23,10 @@ class cfMeshDialog(QMainWindow):
         super().__init__()
         uic.loadUi("cfMeshDialog.ui", self)
         self.setWindowTitle("cfMesh GUI")
+        self.prepare_vtk()
+        self.prepare_events()
 
+    def prepare_vtk(self):
         # Prepare the VTK widget to show the STL
         self.vl = QVBoxLayout()
         self.vtkWidget = QVTKRenderWindowInteractor(self.widget)
@@ -23,6 +36,7 @@ class cfMeshDialog(QMainWindow):
         self.vtkWidget.resize(520,310)
         self.iren = self.vtkWidget.GetRenderWindow().GetInteractor()
 
+    def prepare_events(self):
         # Initiate the button click maps
         self.pushButtonSTLImport.clicked.connect(self.openSTL)
         self.pushButtonCreateMesh.clicked.connect(self.createMesh)
@@ -30,7 +44,6 @@ class cfMeshDialog(QMainWindow):
         self.pushButtonBackground.clicked.connect(self.defineBackgroundDomain)
         self.pushButtonSplitSTL.clicked.connect(self.splitSurfaces)
         self.pushButtonCAD_Import.clicked.connect(self.importCAD)
-
         self.statusbar.showMessage("Ready") # initial status bar message
  
     def updateStatusBar(self,message="Go!"):
@@ -40,6 +53,7 @@ class cfMeshDialog(QMainWindow):
         item = self.listSurfaceList.currentItem()
         print(item.text())   
 
+    # this function will read STL file and show it in the VTK renderer
     def showSTL(self,stlFile=r"pipe.stl"):
         # Read stl
         try:
@@ -47,7 +61,6 @@ class cfMeshDialog(QMainWindow):
             reader.SetFileName(stlFile)
         except:
             print("Reading STL not successful. Try again")
-        
         # Create a mapper
         mapper = vtk.vtkPolyDataMapper()
         mapper.SetInputConnection(reader.GetOutputPort())
