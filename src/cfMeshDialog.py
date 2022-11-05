@@ -8,7 +8,7 @@
 # The main purpose of this module is provide fundamental IO functionalities to deal with 
 # OpenFOAM files. This includes definition of default values which will be updated in the GUI.
 
-import sys
+import sys, os
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QVBoxLayout, QDialog
 from PyQt5 import QtWidgets
 from PyQt5 import uic
@@ -16,7 +16,8 @@ import vtk
 import primitives.IO as IO
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 from foamCaseCreator import foamCase
-
+#from foamCLI import *
+import foamCLI
 
 # global values to store the case name and directory path
 # should not be abused!
@@ -243,11 +244,14 @@ def testCreateCase():
     createCaseWindow.show() 
     try:
         sys.exit(app.exec_())
+        
     except SystemExit:
         pass
     global caseName
     global caseDirectoryPath
-    print(caseName,caseDirectoryPath)
+    #print(caseName,caseDirectoryPath)
+    print(os.getcwd())
+    foamCLI.testCreateCase()
 
 if __name__ == '__main__':
     #main()

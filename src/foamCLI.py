@@ -12,6 +12,7 @@ import primitives.defaultValues as df
 import sys
 import os
 
+insideOpenFOAMCase = 0
 
 #Primitives
 #IO
@@ -45,6 +46,8 @@ def createCaseDirectory(caseDir="/casePath",caseName="testCase"):
     except:
         print("Error creating directory")
         exit(-1)
+    global insideOpenFOAMCase
+    insideOpenFOAMCase = 1
     # Create OpenFOAM default directories 0, constant, system   
 
 # add "toAdd" to main text "text"
@@ -201,13 +204,7 @@ def fvSchemeTest():
 def createFvSolutions():
     foamHeader = createFoamHeader(itemClass="dictionary",object="fvSolutions")
 
-def controlDictTest():
-    (data,dv) = getControlDictData()
-    data["application"]="icoFoam"
-    data["deltaT"]=0.005
-    data["endTime"]=0.5
-    cdict = createControlDict(controlData=data,defaultValues=data,funcObj=-1)
-    writeDictFile(data=cdict,dictFile="controlDict")
+
 
 def readJSN():
     data = IO.readJSON(fileName="snappyJSON.json")
@@ -247,36 +244,43 @@ def dictDataToText(data):
 
 
 def controlDictTest():
+    filePath = "./system/controlDict"
     data = df.generateControlDictData()
-    print(data)
     text = createFoamHeader(itemClass="dictionary",object="controlDict")
     text = text+dictDataToText(data=data)
-    writeDictFile(data=text,dictFile="controlDict")
-    print(text)
+    writeDictFile(data=text,dictFile=filePath)
+    
 
 def fvSchemesTest():
+    filePath = "./system/fvSchemes"
     data = df.generateFvSchemesData()
-    print(data)
     text = createFoamHeader(itemClass="dictionary",object="fvSchemes")
     text = text+dictDataToText(data=data)
-    writeDictFile(data=text,dictFile="fvSchemes")
-    print(text)
+    writeDictFile(data=text,dictFile=filePath)
+    
 
 def fvSolutionsTest():
+    filePath = "./system/fvSolution"
     data = df.generateFvSolutionData()
-    print(data)
     text = createFoamHeader(itemClass="dictionary",object="fvSolution")
     text = text+dictDataToText(data=data)
-    writeDictFile(data=text,dictFile="fvSolution")
-    print(text)
+    writeDictFile(data=text,dictFile=filePath)
+    
 
 def snappyTest():
+    filePath = "./system/snappyHexMesh"
     data = df.generateSnappyHexMeshData()
-    print(data)
     text = createFoamHeader(itemClass="dictionary",object="snappyHexMeshDict")
     text = text+dictDataToText(data=data)
-    writeDictFile(data=text,dictFile="snappyHexMeshDict")
-    print(text)
+    writeDictFile(data=text,dictFile=filePath)
+
+
+def testCreateCase():
+    controlDictTest()
+    fvSchemesTest()
+    fvSolutionsTest()
+    snappyTest()
+    
 
 
 
