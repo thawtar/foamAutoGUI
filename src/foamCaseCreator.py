@@ -31,10 +31,11 @@ class foamCase():
         else:
             try:
                 os.makedirs(directory) # this will make intermediate directories too
+                return 1
             except:
                 print("Error creating directory...")
                 return -1
-        return 1
+        
     
     def setDirectory(self,casePath):
         self.caseDirectory=casePath
@@ -74,11 +75,16 @@ class foamCase():
             filePath = os.path.join(self.dir_system,fileName)
             controlDictTest()
 
-if __name__=="__main__":
-    aCase = foamCase()
-    casePath = r"C:\Users\mrtha\Desktop"
-    caseName = "test1"
-    aCase.createCase(casePath=casePath,caseName=caseName)
+
+#def main():
+#    aCase = foamCase()
+#    casePath = r"C:\Users\mrtha\Desktop"
+#    caseName = "test1"
+#    aCase.createCase(casePath=casePath,caseName=caseName)
+
+
+#if __name__=="__main__":
+#    main()
 
 
     

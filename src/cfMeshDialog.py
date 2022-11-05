@@ -15,14 +15,13 @@ from PyQt5 import uic
 import vtk
 import primitives.IO as IO
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
-
-class createCase(QDialog):
-    def __init__(self) -> None:
-        super().__init__()
-        uic.loadUi("createCaseDialog.ui", self)
-        self.setWindowTitle("Create OpenFOAM Case")
+from foamCaseCreator import foamCase
 
 
+# global values to store the case name and directory path
+# should not be abused!
+caseName = ""
+caseDirectoryPath = ""
 
 class cfMeshDialog(QMainWindow):
     def __init__(self, ):
@@ -31,6 +30,14 @@ class cfMeshDialog(QMainWindow):
         self.setWindowTitle("cfMesh GUI")
         self.prepare_vtk()
         self.prepare_events()
+        self.prepare_subWindows()
+    
+    def __del__(self):
+        pass
+
+    # manage sub windows
+    def prepare_subWindows(self):
+        self.createCaseWindow = None
 
     def prepare_vtk(self):
         # Prepare the VTK widget to show the STL
@@ -51,7 +58,7 @@ class cfMeshDialog(QMainWindow):
         self.pushButtonSplitSTL.clicked.connect(self.splitSurfaces)
         self.pushButtonCAD_Import.clicked.connect(self.importCAD)
         self.statusbar.showMessage("Ready") # initial status bar message
-        #self.action_CreateProject.clicked.connect(self.createProject)
+        self.action_CreateProject.triggered.connect(self.createCase)
  
     def updateStatusBar(self,message="Go!"):
         self.statusbar.showMessage(message)
@@ -60,8 +67,16 @@ class cfMeshDialog(QMainWindow):
         item = self.listSurfaceList.currentItem()
         print(item.text())   
 
-    def createProject(self):
-        print("Creating Case...")
+    def createCase(self):
+        #print("Creating Case...")
+        if(self.createCaseWindow==None):
+            self.createCaseWindow = createCase()
+            self.createCaseWindow.show()  
+        #try:
+        #    sys.exit(subapp.exec_())
+        #except SystemExit:
+        #    print("Closing")
+
 
     # this function will read STL file and show it in the VTK renderer
     def showSTL(self,stlFile=r"C:\Users\mrtha\Desktop\GitHub\foamAutoGUI\src\pipe.stl"):
@@ -160,7 +175,59 @@ class cfMeshDialog(QMainWindow):
     def createMesh(self):
         print("Creating Cartesian Mesh...")
 
-if __name__ == '__main__':
+class createCase(QDialog):
+    def __init__(self) -> None:
+        super().__init__()
+        uic.loadUi("createCaseDialog.ui", self)
+        self.setWindowTitle("Create OpenFOAM Case")
+        self.caseDirectoryPath = None
+        self.caseName = None
+        self.prepare_events()
+
+    def __del__(self):
+        pass #print("Exiting")
+
+    def prepare_events(self):
+        # Initiate the button click maps
+        self.pushButtonCreate.clicked.connect(self.createACase)
+        self.pushButtonCancel.clicked.connect(self.cancel)
+        self.pushButtonOpen.clicked.connect(self.OpenPath)
+
+    # Events
+    def createACase(self):
+        self.caseName = self.textEditCaseName.toPlainText()
+        self.caseDirectoryPath = self.textEditCasePath.toPlainText()
+        
+        if(self.caseName=="" ):
+            print("Error... Case name required.")
+        elif(self.caseDirectoryPath==""):
+            print("Error... Case directory path required.")
+        else:
+            print("Created case: ",self.caseName)
+            print("Case Directory: ",self.caseDirectoryPath)
+            global caseName 
+            caseName = self.caseName
+            global caseDirectoryPath 
+            caseDirectoryPath = self.caseDirectoryPath
+            aFoamCase = foamCase()
+            aFoamCase.createCase(caseName=caseName,casePath=caseDirectoryPath)
+            self.close()
+        return 1
+    
+    def cancel(self):
+        print("Closing create case directory dialog")
+        self.close()
+        return 0
+
+    def OpenPath(self):
+        tmpPath = str(QtWidgets.QFileDialog.getExistingDirectory(self, "Select Directory"))
+        if(tmpPath!=""):
+            #self.caseDirectoryPath = tmpPath
+            self.textEditCasePath.setPlainText(tmpPath)
+        else:
+            pass
+    
+def main():
     app = QApplication(sys.argv)
     mainWindow = cfMeshDialog()
     mainWindow.show()  
@@ -168,4 +235,22 @@ if __name__ == '__main__':
         sys.exit(app.exec_())
     except SystemExit:
         print("Closing")
+
+
+def testCreateCase():
+    app = QApplication(sys.argv)
+    createCaseWindow = createCase()
+    createCaseWindow.show() 
+    try:
+        sys.exit(app.exec_())
+    except SystemExit:
+        pass
+    global caseName
+    global caseDirectoryPath
+    print(caseName,caseDirectoryPath)
+
+if __name__ == '__main__':
+    #main()
+    testCreateCase()
+    
 

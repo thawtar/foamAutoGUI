@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Create Case</string>
   </property>
-  <widget class="QPushButton" name="pushButton">
+  <widget class="QPushButton" name="pushButtonCreate">
    <property name="geometry">
     <rect>
      <x>110</x>
@@ -26,7 +26,7 @@
     <string>Create</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_2">
+  <widget class="QPushButton" name="pushButtonCancel">
    <property name="geometry">
     <rect>
      <x>210</x>
@@ -39,7 +39,7 @@
     <string>Cancel</string>
    </property>
   </widget>
-  <widget class="QTextEdit" name="textEdit">
+  <widget class="QTextEdit" name="textEditCasePath">
    <property name="geometry">
     <rect>
      <x>80</x>
@@ -75,7 +75,7 @@
     <string>Case Name</string>
    </property>
   </widget>
-  <widget class="QTextEdit" name="textEdit_2">
+  <widget class="QTextEdit" name="textEditCaseName">
    <property name="geometry">
     <rect>
      <x>80</x>
@@ -85,7 +85,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_3">
+  <widget class="QPushButton" name="pushButtonOpen">
    <property name="geometry">
     <rect>
      <x>330</x>

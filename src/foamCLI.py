@@ -376,10 +376,7 @@ def test():
         exit(-1)
     print("Solver: ",solvers[solverKey])
 
-#controlDictTest()
-#fvSchemesTest()
-#snappyTest()
-#fvSolutionsTest()
+
 #=============================================================
 """******************************************************
 snappyHexMeshDict variables
