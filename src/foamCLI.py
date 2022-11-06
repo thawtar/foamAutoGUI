@@ -11,8 +11,22 @@ import primitives.IO as IO
 import primitives.defaultValues as df
 import sys
 import os
+import numpy as np
 
 insideOpenFOAMCase = 0
+
+# OpenFOAM Logo
+def oflogo(version="v2012"):
+    logo = " /*--------------------------------*- C++ -*---------------------------------*\\\n \
+| =========                |                                                 | \n \
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           | \n \
+|  \\    /   O peration     | Version:  "+version+"                                 | \n \
+|   \\  /    A nd           | Website:  www.openfoam.com                      | \n \
+|    \\/     M anipulation  |                                                 | \n \
+\\*--------------------------------------------------------------------------*/ \n \
+"
+    
+    return logo
 
 #Primitives
 #IO
@@ -114,18 +128,7 @@ def createFoamHeader(itemClass="dictionary",object="surf"):
     return output
 #=============================================================
 # Create the setting files for OpenFOAM
-# Create Control dict
-def createControlDict(controlData,defaultValues,funcObj):
-    foamHeader = createFoamHeader(itemClass="dictionary",object="controlDict")
-    data = addItemGroup(data=controlData,defaultValues=defaultValues)
-    if(funcObj!=-1): # -1 is there is no function objects flag
-        functionObj = addFunctionObjects(functionObjectSwitches=funcObj)
-        output = foamHeader+data+functionObj
-    else:
-        output = foamHeader+data
-    print(output)
-    return output
-    #writeDictFile(data=controlData,dictFile="controlDict")
+
 
 # To create surfaceExtractDict
 def createSurfaceFeatureExtractDict(stlName="stlFile.stl",includedAngle=180):
@@ -136,20 +139,7 @@ def createSurfaceFeatureExtractDict(stlName="stlFile.stl",includedAngle=180):
     return output
     #writeDict(data=output,dictFile="surfaceFeatureExtractDict")
 
-def createSnappyHexDict(snappyData): 
-    foamHeader = createFoamHeader(itemClass="dictionary",object="snappyHexMeshDict")
-    (mainSteps, geometry, castellatedControls, snapControls, addLayerControls, meshQualityControls)=snappyData 
-    #just unzip the tuple containing a lot of snappyHexMesh data
-    mainSteps = addItemGroup(data=mainSteps,defaultValues=mainSteps)
-    geometry = addDictionary(name="geometry",data=geometry,defaultValues=geometry)
-    castellatedControls=addDictionary(name="castellatedMeshControls",data=castellatedControls,defaultValues=castellatedControls)
-    snapControls=addDictionary(name="snapControls",data=snapControls,defaultValues=snapControls)
-    addLayerControls=addDictionary(name="addLayersControls",data=addLayerControls,defaultValues=addLayerControls)
-    meshQualityControls=addDictionary(name="meshQualityControls",data=meshQualityControls,defaultValues=meshQualityControls)
-    mergeTolerance = addItem(text="",itemName="mergeTolerance",value=1.0e-6)
-    snappyHexData = foamHeader+mainSteps+geometry+castellatedControls+snapControls
-    snappyHexData = snappyHexData+addLayerControls+meshQualityControls+mergeTolerance
-    print(snappyHexData)
+
 
 def createBox(name,minPoint,maxPoint):
     data = {"type":"searchableBox"}
@@ -175,41 +165,9 @@ def createSphere(name,centre, radius):
     data["radius"] = radius
     output = addDictionary(name=name,data=data,defaultValues=data)
 
-
-def createFvSchemes(schemes):
-    foamHeader = createFoamHeader(itemClass="dictionary",object="fvSchemes")
-    (ddtS, gradS, divS, laplacianS, interpolationS,snGradS) = schemes # this tuple contains data about numerical schemes to be used
-    ddt = addDictionary("ddtSchemes",ddtS,ddtS)
-    grad= addDictionary("gradSchemes",gradS,gradS)
-    div = addDictionary("divSchemes",divS,divS)
-    lap = addDictionary("laplacianSchemes",laplacianS,laplacianS)
-    inter=addDictionary("interPolationSchemes",interpolationS,interpolationS)
-    snG = addDictionary("snGradSchemes",snGradS,snGradS)
-    output=foamHeader+ddt+grad+div+lap+inter+snG
-    return output
-
-def fvSchemeTest():
-    ddt = {"default":"Euler"}
-    grad = {"default":"Gauss linear"}
-    div = {"default":"none", "div(phi,U)":"bounded Gauss upwind"}
-    lap = {"default":"Gauss linear orthogonal"}
-    inter={"default":"linear"}
-    snGra={"default":"corrected"}
-    schemes = (ddt,grad,div,lap,inter,snGra)
-    output=createFvSchemes(schemes=schemes)
-    writeDictFile(data=output,dictFile="fvSchemes")
-    print(output)
-
-
-def createFvSolutions():
-    foamHeader = createFoamHeader(itemClass="dictionary",object="fvSolutions")
-
-
-
 def readJSN():
     data = IO.readJSON(fileName="snappyJSON.json")
     return data
-
 
 def dictDataToText(data):
     keys = data.keys()
@@ -242,48 +200,97 @@ def dictDataToText(data):
     #print(keys)
     #print(values)
 
+# BlockMeshDict differs a lot from other dictionary files. Thus, it was written differently.
+def createBlockMeshDictTextData(data):
+    def createVertices(x1, x2, y1, y2, z1, z2):
+        s = " "
+        # (x1,x2,y1,y2,z1,z2) = data
+        x1, x2, y1, y2, z1, z2 = str(x1), str(x2), str(y1), str(y2), str(z1), str(z2)
+        tmp = "\nvertices (\n"
+        tmp = tmp + "\t(" + x1 + s + y1 + s + z1 + ")\n"
+        tmp = tmp + "\t(" + x2 + s + y1 + s + z1 + ")\n"
+        tmp = tmp + "\t(" + x2 + s + y2 + s + z1 + ")\n"
+        tmp = tmp + "\t(" + x1 + s + y2 + s + z1 + ")\n"
+        tmp = tmp + "\t(" + x1 + s + y1 + s + z2 + ")\n"
+        tmp = tmp + "\t(" + x2 + s + y1 + s + z2 + ")\n"
+        tmp = tmp + "\t(" + x2 + s + y2 + s + z2 + ")\n"
+        tmp = tmp + "\t(" + x1 + s + y2 + s + z2 + ")\n"
+        tmp = tmp + ");\n\n"
+        return tmp
 
-def controlDictTest():
+    def createBlocks(nx, ny, nz):
+        s = " "
+        tmp = "blocks\n(\n\thex (0 1 2 3 4 5 6 7) (" + str(nx) + s + str(ny) + s + str(nz)
+        tmp = tmp + ") simpleGrading (1 1 1)\n);\n\n"
+        return tmp
+
+    def createEdges():
+        tmp = "edges (\n);\n\n"
+        return tmp
+
+    def createMergePairs():
+        tmp = "mergePatchPairs (\n);\n\n"
+        return tmp
+
+    def createBoundaries():
+        tmp = "boundary\n(\n"
+        tmp = tmp + "left\n{\n\ttype patch;\n\tfaces ((0 3 7 4));\n}\n"
+        tmp = tmp + "right\n{\n\ttype patch;\n\tfaces ((1 2 6 5));\n}\n"
+        tmp = tmp + "top\n{\n\ttype patch;\n\tfaces ((4 5 6 7));\n}\n"
+        tmp = tmp + "bottom\n{\n\ttype patch;\n\tfaces ((0 1 2 3));\n}\n"
+        tmp = tmp + "front\n{\n\ttype patch;\n\tfaces ((4 5 1 0));\n}\n"
+        tmp = tmp + "back\n{\n\ttype patch;\n\tfaces ((7 6 2 3));\n}\n"
+        tmp = tmp + ");\n\n"
+        return tmp
+    (x1,x2,y1,y2,z1,z2,nx,ny,nz) = data # extract the tuple of data
+    lx,ly,lz = np.abs(x2-x1),np.abs(y2-y1),np.abs(z2-z1)
+    scale = 1.0 # scale to be used
+    blockMeshString = oflogo()+createFoamHeader(itemClass="dictionary",object="blockMeshDict")
+   
+    blockMeshString = blockMeshString+"\nscale\t"+str(scale)+";\n"
+    blockMeshString = blockMeshString+createVertices(x1,x2,y1,y2,z1,z2)
+    blockMeshString = blockMeshString+createBlocks(nx,ny,nz)+createEdges()
+    blockMeshString = blockMeshString+createBoundaries()+createMergePairs()
+    return blockMeshString
+
+def createControlDict():
     filePath = "./system/controlDict"
     data = df.generateControlDictData()
     text = createFoamHeader(itemClass="dictionary",object="controlDict")
     text = text+dictDataToText(data=data)
     writeDictFile(data=text,dictFile=filePath)
     
-
-def fvSchemesTest():
+def createfvSchemesDict():
     filePath = "./system/fvSchemes"
     data = df.generateFvSchemesData()
     text = createFoamHeader(itemClass="dictionary",object="fvSchemes")
     text = text+dictDataToText(data=data)
     writeDictFile(data=text,dictFile=filePath)
     
-
-def fvSolutionsTest():
+def createfvSolutionDict():
     filePath = "./system/fvSolution"
     data = df.generateFvSolutionData()
     text = createFoamHeader(itemClass="dictionary",object="fvSolution")
     text = text+dictDataToText(data=data)
     writeDictFile(data=text,dictFile=filePath)
     
-
-def snappyTest():
-    filePath = "./system/snappyHexMesh"
+def createSnappyHexMeshDict():
+    filePath = "./system/snappyHexMeshDict"
     data = df.generateSnappyHexMeshData()
     text = createFoamHeader(itemClass="dictionary",object="snappyHexMeshDict")
     text = text+dictDataToText(data=data)
     writeDictFile(data=text,dictFile=filePath)
 
-
-def testCreateCase():
-    controlDictTest()
-    fvSchemesTest()
-    fvSolutionsTest()
-    snappyTest()
-    
+def createBlockMeshDict():
+    filePath = "./system/blockMeshDict"
+    data = (0,0,0,1,1,1,10,10,10)
+    text = createBlockMeshDictTextData(data=data)
+    writeDictFile(data=text,dictFile=filePath)
 
 
-
+def extractFileName(filePath="C:/Users/thawtar/asdf.stl"):
+    splitted = filePath.split("/")
+    return splitted[-1]
 
 """
 ==========================================================
@@ -380,19 +387,4 @@ def test():
         exit(-1)
     print("Solver: ",solvers[solverKey])
 
-
 #=============================================================
-"""******************************************************
-snappyHexMeshDict variables
-******************************************************"""
-
-
-
-#(c,d) = getControlDictData()
-#fvSchemeTest()
-#controlDictTest()
-
-
-#functionObjList = {"sample":1,"forces":0,"wallShearStress":1}
-#createControlDict(c,d,functionObjList)
-#addFunctionObjects(functionObjectSwitches=functionObjList)

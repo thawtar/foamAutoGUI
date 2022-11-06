@@ -22,6 +22,8 @@ class foamCase():
         self.dir_0 = "0"
         self.dir_constant = "constant"
         self.dir_system = "system"
+        self.dir_triSurface = "constant/triSurface"
+        self.caseCreated = 0
 
     # this function returns 0 if directory already exists, -1 if there is error, 1 if successful
     def createDirectory(self,directory):
@@ -42,10 +44,10 @@ class foamCase():
 
     def createCase(self,casePath,caseName):
         self.caseDirectory = os.path.join(casePath,caseName)
-        print(self.caseDirectory)
+        print("Case Directory: ",self.caseDirectory)
         status = self.createDirectory(self.caseDirectory)
         self.caseName = caseName
-        self.isInCaseDirectory = 1 # Set the flag
+        
         # to create the case directory,
         
         self.dir_0 = os.path.join(self.caseDirectory,self.dir_0)
@@ -53,6 +55,7 @@ class foamCase():
         self.dir_system = os.path.join(self.caseDirectory,self.dir_system)
         try:
             os.chdir(self.caseDirectory)
+            self.isInCaseDirectory = 1 # Set the flag
         except:
             print("Error changing to directed directory...")
             exit(-1)
@@ -61,6 +64,8 @@ class foamCase():
             self.createDirectory(self.dir_0)
             self.createDirectory(self.dir_constant)
             self.createDirectory(self.dir_system)
+            self.createDirectory(self.dir_triSurface)
+            self.caseCreated = 1
             #os.mkdir(dir_0)
             #os.mkdir(dir_constant)
             #os.mkdir(dir_system)
@@ -71,9 +76,11 @@ class foamCase():
 
     def createSystem(self):
         if(self.isInCaseDirectory):
-            fileName = "controlDict"
-            filePath = os.path.join(self.dir_system,fileName)
-            controlDictTest()
+            createBlockMeshDict()
+            createControlDict()
+            createfvSchemesDict()
+            createfvSolutionDict()
+            createSnappyHexMeshDict()
 
 
 #def main():

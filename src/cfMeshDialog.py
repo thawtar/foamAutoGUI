@@ -18,11 +18,13 @@ from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 from foamCaseCreator import foamCase
 #from foamCLI import *
 import foamCLI
+import shutil
 
 # global values to store the case name and directory path
 # should not be abused!
-caseName = ""
-caseDirectoryPath = ""
+caseName = None
+caseDirectoryPath = None
+caseCreated = 0 # flag to show that the case is already created
 
 class cfMeshDialog(QMainWindow):
     def __init__(self, ):
@@ -70,13 +72,13 @@ class cfMeshDialog(QMainWindow):
 
     def createCase(self):
         #print("Creating Case...")
-        if(self.createCaseWindow==None):
-            self.createCaseWindow = createCase()
-            self.createCaseWindow.show()  
-        #try:
-        #    sys.exit(subapp.exec_())
-        #except SystemExit:
-        #    print("Closing")
+        #if(self.createCaseWindow==None):
+        self.createCaseWindow = createCase()
+        self.createCaseWindow.show()  
+        global caseCreated
+        global caseName, caseDirectoryPath
+        if(caseName is not None and caseDirectoryPath is not None):
+            caseCreated = 1 # set the case created flag
 
 
     # this function will read STL file and show it in the VTK renderer
@@ -131,9 +133,24 @@ class cfMeshDialog(QMainWindow):
         if(fname==""):
             return -1 # STL file not loaded
         else:
-            print("Current STL File: ",fname)
+            #print("Current STL File: ",fname)
             return fname
 
+    def copySTL(self,stlFileName):
+        if(caseCreated and os.getcwd()!=caseDirectoryPath):
+            try:
+                os.chdir(caseDirectoryPath)
+            except:
+                print("Error changing directory..")
+        stlFileOnly = foamCLI.extractFileName(stlFileName)
+        dst_file = os.getcwd()+"/constant/triSurface/"+stlFileOnly
+        try:
+            shutil.copy(src=stlFileName,dst=dst_file)
+            return dst_file
+        except:
+            print("File copy failed..")
+            return -1
+        
     def importFile(self,startLocation="c:\\",fileType="*.brep *.igs *.iges"):
         fname,ftype = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', 
         'c:\\',"CAD files (*.brep *.igs *.iges)")
@@ -157,8 +174,11 @@ class cfMeshDialog(QMainWindow):
         if(stlFileName==-1):
             pass
         else:
-            self.showSTL(stlFile=stlFileName)
-            self.loadSTL(stlFile=stlFileName)
+            print("Copying stl file")
+            stl = self.copySTL(stlFileName=stlFileName)
+            if(stl!=-1):
+                self.showSTL(stlFile=stl)
+                self.loadSTL(stlFile=stl)
 
     def splitSurfaces(self):
         self.updateStatusBar("Spliting surfaces")
@@ -212,11 +232,12 @@ class createCase(QDialog):
             caseDirectoryPath = self.caseDirectoryPath
             aFoamCase = foamCase()
             aFoamCase.createCase(caseName=caseName,casePath=caseDirectoryPath)
+            aFoamCase.createSystem()
             self.close()
         return 1
     
     def cancel(self):
-        print("Closing create case directory dialog")
+        #print("Closing create case directory dialog")
         self.close()
         return 0
 
@@ -250,11 +271,10 @@ def testCreateCase():
     global caseName
     global caseDirectoryPath
     #print(caseName,caseDirectoryPath)
-    print(os.getcwd())
-    foamCLI.testCreateCase()
+    
 
 if __name__ == '__main__':
-    #main()
-    testCreateCase()
+    main()
+    #testCreateCase()
     
 
