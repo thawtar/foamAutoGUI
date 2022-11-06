@@ -137,9 +137,10 @@ class cfMeshDialog(QMainWindow):
             return fname
 
     def copySTL(self,stlFileName):
+        global caseCreated, caseDirectoryPath
         if(caseCreated and os.getcwd()!=caseDirectoryPath):
             try:
-                os.chdir(caseDirectoryPath)
+                os.chdir(self.caseDirectoryPath)
             except:
                 print("Error changing directory..")
         stlFileOnly = foamCLI.extractFileName(stlFileName)
